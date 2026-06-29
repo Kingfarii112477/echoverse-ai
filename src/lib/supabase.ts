@@ -92,7 +92,6 @@ export const projectService = {
   },
   async duplicateProject(projectId: string, userId: string): Promise<Project> {
     const original = await this.getProject(projectId);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, created_at, updated_at, ...rest } = original;
     return await this.createProject({ ...rest, user_id: userId, title: `${original.title} (Copy)`, status: 'draft' });
   },
