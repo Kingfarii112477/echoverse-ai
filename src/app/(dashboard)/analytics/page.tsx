@@ -122,7 +122,7 @@ const insights = [
 
 export default function AnalyticsPage() {
   const { user } = useAuthStore();
-  const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d'>('30d');
+  const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'custom'>('30d');
   const [usageLogs, setUsageLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [chartData, setChartData] = useState<any[]>([]);
