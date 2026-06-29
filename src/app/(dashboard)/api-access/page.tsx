@@ -148,6 +148,7 @@ audio = client.generate(
 
 
 
+  const getRateLimitColor = (percentage: number) => {
     if (percentage < 70) return 'bg-green-500';
     if (percentage < 90) return 'bg-yellow-500';
     return 'bg-red-500';
