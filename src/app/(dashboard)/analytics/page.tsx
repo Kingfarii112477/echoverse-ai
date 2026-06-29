@@ -168,18 +168,6 @@ export default function AnalyticsPage() {
     const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `echoverse-analytics.${exportFormat}`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const [exportFormat, setExportFormat] = useState<'pdf' | 'csv'>('pdf');
-
-  const handleExport = () => {
-    const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
     a.href = url; a.download = `echoverse-analytics.${exportFormat}`;
     a.click(); URL.revokeObjectURL(url);
   };
