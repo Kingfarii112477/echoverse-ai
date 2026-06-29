@@ -145,24 +145,9 @@ audio = client.generate(
   }'`,
   };
 
-  const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text.replace(/\*+/g, ''));
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleCopyCode = (code: string, id: string) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCode(id);
-    setTimeout(() => setCopiedCode(null), 2000);
-  };
 
 
-  const handleDeleteKey = (id: string) => {
-    setApiKeys(apiKeys.filter((key) => key.id !== id));
-  };
 
-  const getRateLimitColor = (percentage: number) => {
     if (percentage < 70) return 'bg-green-500';
     if (percentage < 90) return 'bg-yellow-500';
     return 'bg-red-500';
