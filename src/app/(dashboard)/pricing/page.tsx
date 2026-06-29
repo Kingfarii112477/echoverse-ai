@@ -53,6 +53,7 @@ export default function PricingPage() {
   const [checkoutError, setCheckoutError] = useState('');
 
   // Paddle price IDs — replace with real IDs from your Paddle dashboard
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const PADDLE_PRICE_IDS: Record<string, string> = {
     pro_monthly:    process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO_MONTHLY || '',
     pro_annual:     process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO_ANNUAL || '',

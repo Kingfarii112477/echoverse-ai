@@ -502,7 +502,7 @@ export default function SettingsPage() {
                         <div className="flex gap-2">
                           <Input
                             type={apiKeyVisible ? 'text' : 'password'}
-                            value=""
+                            value="sk_live_1234567890abcdefghijklmnop"
                             readOnly
                           />
                           <Button

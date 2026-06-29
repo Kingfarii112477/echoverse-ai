@@ -45,6 +45,31 @@ export default function APIAccessPage() {
     { name: 'Sun', calls: 0 },
   ]);
 
+  const [rateLimits] = useState({
+    perMinute: { current: 45, max: 100 },
+    perDay: { current: 1250, max: 10000 },
+  });
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookEvents, setWebhookEvents] = useState([
+    { id: 'generation.complete', label: 'generation.complete', checked: true },
+    { id: 'generation.failed', label: 'generation.failed', checked: true },
+    { id: 'clone.complete', label: 'clone.complete', checked: false },
+    { id: 'subscription.updated', label: 'subscription.updated', checked: false },
+  ]);
+  const [permissions, setPermissions] = useState([
+    { id: 'generate', label: 'Generate Speech', checked: true },
+    { id: 'clone', label: 'Clone Voice', checked: false },
+    { id: 'read', label: 'Read Projects', checked: true },
+    { id: 'write', label: 'Write Projects', checked: false },
+  ]);
+  const [expandedEndpoint, setExpandedEndpoint] = useState<string | null>(null);
+  const [apiEndpoints] = useState([
+    { id: 'generate', method: 'POST', path: '/v1/generate', description: 'Generate speech', params: ['text: string', 'voice: string', 'stability?: number'], response: '{ audio_url: string, duration: number }' },
+    { id: 'voices', method: 'GET', path: '/v1/voices', description: 'List available voices', params: ['language?: string', 'gender?: string'], response: '{ voices: Voice[] }' },
+    { id: 'clone', method: 'POST', path: '/v1/clone', description: 'Clone a voice', params: ['audio_file: File', 'name: string'], response: '{ voice_id: string }' },
+    { id: 'delete', method: 'DELETE', path: '/v1/voices/:id', description: 'Delete a voice clone', params: ['id: string'], response: '{ success: boolean }' },
+  ]);
+
   const loadKeys = useCallback(async () => {
     setIsLoading(true); setError('');
     try {
@@ -146,8 +171,6 @@ audio = client.generate(
   };
 
 
-
-
   const getRateLimitColor = (percentage: number) => {
     if (percentage < 70) return 'bg-green-500';
     if (percentage < 90) return 'bg-yellow-500';
@@ -216,26 +239,26 @@ audio = client.generate(
                   >
                     <td className="py-3 px-4 text-ev-on-surface">{key.name}</td>
                     <td className="py-3 px-4">
-                      <code className="text-ev-primary text-sm font-mono">{key.key}</code>
+                      <code className="text-ev-primary text-sm font-mono">{key.key_prefix}***</code>
                     </td>
-                    <td className="py-3 px-4 text-ev-on-surface-variant">{key.created}</td>
-                    <td className="py-3 px-4 text-ev-on-surface-variant">{key.lastUsed}</td>
+                    <td className="py-3 px-4 text-ev-on-surface-variant">{timeAgo(key.created_at)}</td>
+                    <td className="py-3 px-4 text-ev-on-surface-variant">{timeAgo(key.last_used_at)}</td>
                     <td className="py-3 px-4">
                       <Badge
                         className={cn(
                           'text-xs',
-                          key.status === 'Active'
+                          key.is_active === true
                             ? 'bg-green-500/20 text-green-400'
                             : 'bg-gray-500/20 text-gray-400'
                         )}
                       >
-                        {key.status}
+                        {key.is_active ? 'Active' : 'Inactive'}
                       </Badge>
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleCopy(key.key, key.id)}
+                          onClick={() => handleCopy(key.key_prefix, key.id)}
                           className="p-1.5 hover:bg-ev-surface-high rounded transition-colors"
                           title="Copy"
                         >

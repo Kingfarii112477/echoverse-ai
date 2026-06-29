@@ -77,6 +77,7 @@ export default function VoiceStudioPage() {
   } = useVoiceStudioCompat();
 
   // Load voices on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchVoices(); }, []);
 
   // Search and filter
@@ -557,7 +558,7 @@ export default function VoiceStudioPage() {
                   {dialogueLines.map((line, index) => {
                     const speaker = speakers.find((s) => s.id === line.speakerId);
                     const speakerIndex = speakers.findIndex((s) => s.id === line.speakerId);
-                    const colorStyle = SPEAKER_COLORS[speakerIndex % SPEAKER_COLORS.length];
+                    const lineColorStyle = SPEAKER_COLORS[speakerIndex % SPEAKER_COLORS.length];
 
                     return (
                       <motion.div
@@ -576,8 +577,8 @@ export default function VoiceStudioPage() {
                         <div
                           className={cn(
                             'mt-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold',
-                            colorStyle.text,
-                            colorStyle.bg
+                            lineColorStyle.text,
+                            lineColorStyle.bg
                           )}
                         >
                           {speaker?.label}

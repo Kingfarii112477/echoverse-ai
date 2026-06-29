@@ -276,7 +276,7 @@ export default function VideoStudioPage() {
                           const duration = end - start;
                           const left = (start / totalDuration) * 100;
                           const width = (duration / totalDuration) * 100;
-                          const colors = ['#aeecff', '#00d8ff', '#ccbdff', '#859398'];
+                          const trackColors = ['#aeecff', '#00d8ff', '#ccbdff', '#859398'];
 
                           return (
                             <div
@@ -285,7 +285,7 @@ export default function VideoStudioPage() {
                               style={{
                                 left: `${left}%`,
                                 width: `${width}%`,
-                                backgroundColor: colors[index % colors.length],
+                                backgroundColor: trackColors[index % trackColors.length],
                                 opacity: 0.7,
                               }}
                             />
@@ -458,8 +458,8 @@ export default function VideoStudioPage() {
                   <div className="space-y-2">
                     <label className="text-sm text-ev-on-surface-variant">Font Size: {captionStyle.fontSize}px</label>
                     <Slider
-                      value={[captionStyle.fontSize]}
-                      onValueChange={([value]) => setCaptionStyle({ ...captionStyle, fontSize: value })}
+                      value={captionStyle.fontSize}
+                      onChange={(value) => setCaptionStyle({ ...captionStyle, fontSize: value })}
                       min={12}
                       max={48}
                       step={2}
@@ -503,8 +503,8 @@ export default function VideoStudioPage() {
                 <div className="space-y-2">
                   <label className="text-sm text-ev-on-surface-variant">Background Opacity: {captionStyle.bgOpacity}%</label>
                   <Slider
-                    value={[captionStyle.bgOpacity]}
-                    onValueChange={([value]) => setCaptionStyle({ ...captionStyle, bgOpacity: value })}
+                    value={captionStyle.bgOpacity}
+                    onChange={(value) => setCaptionStyle({ ...captionStyle, bgOpacity: value })}
                     max={100}
                     step={5}
                   />

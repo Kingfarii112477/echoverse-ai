@@ -241,7 +241,7 @@ export default function EmotionEnginePage() {
             {/* Emotion Nodes */}
             {emotions.map((emotion) => {
               if (!emotion.angle || !emotion.radius) return null;
-              const pos = getNodePosition(emotion.angle, emotion.radius);
+              const nodePos = getNodePosition(emotion.angle, emotion.radius);
               const isSelected = selectedEmotion === emotion.id;
 
               return (
@@ -249,8 +249,8 @@ export default function EmotionEnginePage() {
                   key={emotion.id}
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
                   style={{
-                    x: pos.x,
-                    y: pos.y,
+                    x: nodePos.x,
+                    y: nodePos.y,
                   }}
                   whileHover={{ scale: 1.1 }}
                   onClick={() => setSelectedEmotion(emotion.id)}

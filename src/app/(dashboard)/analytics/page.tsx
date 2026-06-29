@@ -127,7 +127,6 @@ export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [chartData, setChartData] = useState<any[]>([]);
   const [kpis, setKpis] = useState({ minutes: 0, downloads: 0, projects: 0 });
-  const [exportFormat, setExportFormat] = useState<'pdf' | 'csv'>('pdf');
 
   const loadAnalytics = useCallback(async () => {
     if (!user) return;
@@ -162,6 +161,17 @@ export default function AnalyticsPage() {
 
   useEffect(() => { loadAnalytics(); }, [loadAnalytics]);
 
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'csv'>('pdf');
+
+  const handleExport = () => {
+    const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `echoverse-analytics.${exportFormat}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="min-h-screen bg-[#0e1417] text-[#dde4e6] p-6 md:p-8">

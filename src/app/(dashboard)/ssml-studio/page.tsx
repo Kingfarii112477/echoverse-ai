@@ -280,8 +280,8 @@ export default function SSMLStudioPage() {
 
                 {/* Nodes */}
                 {nodes.map(node => {
-                  const config = nodeConfigs[node.type];
-                  const Icon = config.icon;
+                  const nodeConfig = nodeConfigs[node.type];
+                  const NodeIcon = nodeConfig.icon;
                   return (
                     <motion.div
                       key={node.id}
@@ -296,14 +296,14 @@ export default function SSMLStudioPage() {
                       onClick={() => setSelectedNode(node.id)}
                       className={cn(
                         'w-[200px] bg-ev-surface rounded-lg border-t-4 cursor-move shadow-lg',
-                        config.borderColor,
+                        nodeConfig.borderColor,
                         selectedNode === node.id && 'ring-2 ring-ev-primary'
                       )}
                     >
                       <div className="p-4">
                         <div className="flex items-center gap-2 mb-3">
-                          <Icon className="w-5 h-5 text-ev-on-surface" />
-                          <span className="font-semibold text-ev-on-surface">{config.label}</span>
+                          <NodeIcon className="w-5 h-5 text-ev-on-surface" />
+                          <span className="font-semibold text-ev-on-surface">{nodeConfig.label}</span>
                         </div>
                         <div className="space-y-1 text-xs text-ev-on-surface-variant">
                           {node.type === 'pause' && (

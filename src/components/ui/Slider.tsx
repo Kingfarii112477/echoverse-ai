@@ -54,6 +54,7 @@ export function Slider({
     updateValue(e.clientX);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!isDragging) return;
 

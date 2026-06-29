@@ -484,9 +484,9 @@ export default function ProjectsPage() {
               {/* Table Body */}
               <div className="divide-y divide-ev-outline">
                 {filteredProjects.map((project, index) => {
-                  const typeConfig = getTypeConfig(project.type);
-                  const statusConfig = getStatusConfig(project.status);
-                  const TypeIcon = typeConfig.icon;
+                  const listTypeConfig = getTypeConfig(project.type);
+                  const listStatusConfig = getStatusConfig(project.status);
+                  const ListTypeIcon = listTypeConfig.icon;
 
                   return (
                     <motion.div
@@ -500,10 +500,10 @@ export default function ProjectsPage() {
                         <div
                           className={cn(
                             'w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center flex-shrink-0',
-                            typeConfig.gradient
+                            listTypeConfig.gradient
                           )}
                         >
-                          <TypeIcon className={cn('w-5 h-5', `text-${typeConfig.color}-500`)} />
+                          <ListTypeIcon className={cn('w-5 h-5', `text-${listTypeConfig.color}-500`)} />
                         </div>
                         <span className="font-semibold text-ev-on-surface truncate">
                           {project.title}
@@ -512,13 +512,13 @@ export default function ProjectsPage() {
 
                       <div className="col-span-2">
                         <Badge variant="secondary" className="text-xs capitalize">
-                          {typeConfig.name}
+                          {listTypeConfig.name}
                         </Badge>
                       </div>
 
                       <div className="col-span-2">
-                        <Badge variant={statusConfig.variant as any} className="text-xs">
-                          {statusConfig.label}
+                        <Badge variant={listStatusConfig.variant as any} className="text-xs">
+                          {listStatusConfig.label}
                         </Badge>
                       </div>
 

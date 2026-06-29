@@ -25,6 +25,9 @@ interface Chapter {
   duration: string;
   emotion: string;
   intensity: number;
+  content?: string;
+  audioUrl?: string;
+  status?: string;
 }
 
 interface Character {
@@ -79,6 +82,10 @@ export default function AudiobookStudioPage() {
   ];
 
   const emotions = ['Calm', 'Dramatic', 'Exciting', 'Tense', 'Uplifting', 'Mysterious', 'Joyful'];
+
+  const [bookTitle, setBookTitle] = useState('');
+  const [narratorVoice, setNarratorVoice] = useState('sophia-professional');
+  const [uploadedText, setUploadedText] = useState('');
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -336,11 +343,10 @@ export default function AudiobookStudioPage() {
                         <div className="flex-1 flex items-center gap-3">
                           <span className="text-sm text-ev-on-surface-variant">Intensity:</span>
                           <Slider
-                            value={[chapter.intensity]}
-                            onValueChange={([value]) => updateChapter(chapter.id, 'intensity', value)}
+                            value={chapter.intensity}
+                            onChange={(value) => updateChapter(chapter.id, 'intensity', value)}
                             max={100}
                             step={5}
-                            className="flex-1"
                           />
                           <span className="text-sm text-ev-on-surface w-8">{chapter.intensity}</span>
                         </div>
@@ -367,8 +373,8 @@ export default function AudiobookStudioPage() {
               <CardContent>
                 <div className="flex items-center gap-4">
                   <select
-                    value={selectedVoice}
-                    onChange={(e) => setSelectedVoice(e.target.value)}
+                    value={narratorVoice}
+                    onChange={(e) => setNarratorVoice(e.target.value)}
                     className="flex-1 px-4 py-2 bg-ev-surface-high border border-ev-outline rounded-md text-ev-on-surface"
                   >
                     {voices.map(voice => (

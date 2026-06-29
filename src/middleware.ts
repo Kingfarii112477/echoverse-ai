@@ -4,19 +4,24 @@ import { NextRequest, NextResponse } from 'next/server';
 const PUBLIC_ROUTES = ['/', '/portal', '/auth', '/auth/callback', '/auth/reset-password'];
 const AUTH_ROUTES = ['/auth'];
 
+function isPublicPath(pathname: string): boolean {
+  return PUBLIC_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'));
+}
+
+function isApiPath(pathname: string): boolean {
+  return pathname.startsWith('/api/');
+}
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  // Safeguard: if env vars are missing, allow public routes, block dashboard
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const pathname = request.nextUrl.pathname;
 
   if (!supabaseUrl || !supabaseKey) {
     console.error('[Middleware] Missing Supabase env vars');
-    const pathname = request.nextUrl.pathname;
-    const isPublic = PUBLIC_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'));
-    const isApiRoute = pathname.startsWith('/api/');
-    if (!isPublic && !isApiRoute) {
+    if (!isPublicPath(pathname) && !isApiPath(pathname)) {
       return NextResponse.redirect(new URL('/auth', request.url));
     }
     return response;
@@ -48,29 +53,18 @@ export async function middleware(request: NextRequest) {
       console.warn('[Middleware] Auth error:', authError.message);
     }
 
-    const pathname = request.nextUrl.pathname;
-
-    // Redirect authenticated users away from auth pages
     if (user && AUTH_ROUTES.some(r => pathname.startsWith(r))) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    // Protect dashboard routes
-    const isPublic = PUBLIC_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'));
-    const isApiRoute = pathname.startsWith('/api/');
-
-    if (!user && !isPublic && !isApiRoute) {
+    if (!user && !isPublicPath(pathname) && !isApiPath(pathname)) {
       const redirectUrl = new URL('/auth', request.url);
       redirectUrl.searchParams.set('next', pathname);
       return NextResponse.redirect(redirectUrl);
     }
   } catch (err) {
     console.error('[Middleware] Unhandled error:', err);
-    // Fail open for public routes on middleware crash
-    const pathname = request.nextUrl.pathname;
-    const isPublic = PUBLIC_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'));
-    const isApiRoute = pathname.startsWith('/api/');
-    if (!isPublic && !isApiRoute) {
+    if (!isPublicPath(pathname) && !isApiPath(pathname)) {
       return NextResponse.redirect(new URL('/auth', request.url));
     }
   }
