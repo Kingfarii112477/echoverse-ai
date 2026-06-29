@@ -127,6 +127,7 @@ export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [chartData, setChartData] = useState<any[]>([]);
   const [kpis, setKpis] = useState({ minutes: 0, downloads: 0, projects: 0 });
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'csv'>('pdf');
 
   const loadAnalytics = useCallback(async () => {
     if (!user) return;
