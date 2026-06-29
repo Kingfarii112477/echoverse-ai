@@ -1,0 +1,147 @@
+name: Android Build — APK & AAB
+
+on:
+  push:
+    branches: [main, release/**]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type (debug or release)'
+        required: true
+        default: 'release'
+        type: choice
+        options: [debug, release]
+
+env:
+  NODE_VERSION: '20'
+  JAVA_VERSION: '17'
+
+jobs:
+  build:
+    name: Build Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: gradle
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Build Next.js web app
+        env:
+          NEXT_OUTPUT: export
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      # CRITICAL: Decode keystore BEFORE gradle build
+      - name: Decode Android keystore
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || github.event.inputs.build_type == 'release'
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/echoverse-release.jks
+          echo "Keystore decoded successfully"
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*') }}
+
+      - name: Build Debug APK
+        if: github.event.inputs.build_type == 'debug'
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Build Release APK
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || github.event.inputs.build_type == 'release'
+        working-directory: android
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file="$(pwd)/app/echoverse-release.jks" \
+            -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEY_PASSWORD" \
+            --no-daemon
+
+      - name: Build Release AAB
+        if: startsWith(github.ref, 'refs/tags/')
+        working-directory: android
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file="$(pwd)/app/echoverse-release.jks" \
+            -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEY_PASSWORD" \
+            --no-daemon
+
+      - name: Upload Debug APK
+        if: github.event.inputs.build_type == 'debug'
+        uses: actions/upload-artifact@v4
+        with:
+          name: echoverse-debug-${{ github.sha }}
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+
+      - name: Upload Release APK
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || github.event.inputs.build_type == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: echoverse-release-apk-${{ github.sha }}
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
+
+      - name: Upload Release AAB
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: echoverse-release-aab-${{ github.sha }}
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 90
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/bundle/release/app-release.aab
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Clean up keystore
+        if: always()
+        run: rm -f android/app/echoverse-release.jks
