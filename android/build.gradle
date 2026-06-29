@@ -6,7 +6,7 @@ buildscript {
         minSdkVersion = 24
         androidxAppCompatVersion = '1.6.1'
         androidxCoordinatorLayoutVersion = '1.2.0'
-        coreSplashScreenVersion = '1.0.1'
+        coreSplashScreenVersion = '1.2.0'
     }
     repositories {
         google()
